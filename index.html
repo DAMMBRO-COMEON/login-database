@@ -4,70 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>แบบสอบถาม & แจ้งเตือน LINE</title>
-    <script type="module">
-        // 👉 นำเข้า Firebase SDK
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-
-        // ✅ Firebase Config ของคุณ
-        const firebaseConfig = {
-            apiKey: "AIzaSyD8-EXAMPLEKEY",
-            authDomain: "simple-38a5f.firebaseapp.com",
-            projectId: "simple-38a5f",
-            storageBucket: "simple-38a5f.appspot.com",
-            messagingSenderId: "1234567890",
-            appId: "1:1234567890:web:abcdef123456"
-        };
-
-        // 🔥 เริ่มต้น Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        async function submitForm() {
-            let name = document.getElementById("name").value;
-            let email = document.getElementById("email").value;
-            let message = document.getElementById("message").value;
-
-            if (name === "" || email === "" || message === "") {
-                alert("❌ กรุณากรอกข้อมูลให้ครบทุกช่อง");
-                return;
-            }
-
-            // 📤 ส่งข้อมูลไป LINE Notify
-            let lineToken = "LTjxT4JkNnGjFQ2wzPVNUdxEeTFf0zDzbaby3DSNDMB";
-            let lineMessage = `📩 แบบสอบถามใหม่!\n👤 ชื่อ: ${name}\n📧 อีเมล: ${email}\n📝 ข้อความ: ${message}`;
-
-            fetch("https://notify-api.line.me/api/notify", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
-                    "Authorization": "Bearer " + lineToken
-                },
-                body: "message=" + encodeURIComponent(lineMessage)
-            })
-            .then(response => response.json())
-            .then(() => alert("✅ ส่งข้อมูลเรียบร้อย!"))
-            .catch(error => console.error("❌ ส่ง LINE Notify ล้มเหลว:", error));
-
-            // 🔥 บันทึกข้อมูลลง Firebase Firestore
-            try {
-                await addDoc(collection(db, "survey_responses"), {
-                    name: name,
-                    email: email,
-                    message: message,
-                    timestamp: new Date()
-                });
-                console.log("✅ บันทึกข้อมูล Firebase สำเร็จ!");
-            } catch (error) {
-                console.error("❌ บันทึก Firebase ล้มเหลว:", error);
-            }
-
-            // รีเซ็ตฟอร์ม
-            document.getElementById("surveyForm").reset();
-        }
-
-        window.submitForm = submitForm;
-    </script>
 </head>
 <body>
     <h2>📝 แบบสอบถาม</h2>
@@ -83,5 +19,35 @@
 
         <button type="button" onclick="submitForm()">📤 ส่งข้อมูล</button>
     </form>
+
+    <script>
+        function submitForm() {
+            let name = document.getElementById("name").value;
+            let email = document.getElementById("email").value;
+            let message = document.getElementById("message").value;
+
+            if (name === "" || email === "" || message === "") {
+                alert("❌ กรุณากรอกข้อมูลให้ครบทุกช่อง");
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append("name", name);
+            formData.append("email", email);
+            formData.append("message", message);
+
+            // 📤 ส่งข้อมูลไปที่ Backend (PHP)
+            fetch("line_notify.php", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.text())
+            .then(result => {
+                alert(result);
+                document.getElementById("surveyForm").reset();
+            })
+            .catch(error => console.error("❌ Error:", error));
+        }
+    </script>
 </body>
 </html>
