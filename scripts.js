@@ -43,30 +43,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: `message=${encodeURIComponent(message)}`
             })
             .then(response => {
-                if (response.ok) {
-                    // Save data to Firestore
-                    db.collection('survey_responses').add({
-                        name: name,
-                        email: email,
-                        age: age,
-                        satisfaction: satisfaction,
-                        comments: comments,
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                    })
-                    .then(() => {
-                        window.location.href = 'thankyou.html';
-                    })
-                    .catch(error => {
-                        console.error('Error writing document: ', error);
-                        alert('Failed to save data');
-                    });
-                } else {
-                    alert('Failed to send notification');
+                if (!response.ok) {
+                    return response.text().then(text => { throw new Error(text); });
                 }
+                // Save data to Firestore
+                return db.collection('survey_responses').add({
+                    name: name,
+                    email: email,
+                    age: age,
+                    satisfaction: satisfaction,
+                    comments: comments,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            })
+            .then(() => {
+                window.location.href = 'thankyou.html';
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Failed to send notification');
+                alert('Failed to send notification or save data: ' + error.message);
             });
         });
     }
