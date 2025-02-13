@@ -5,7 +5,7 @@ $email = $_POST["email"];
 $message = $_POST["message"];
 
 // Token ของ LINE Notify
-$token = 'LTjxT4JkNnGjFQ2wzPVNUdxEeTFf0zDzbaby3DSNDMB';  // ใส่ Token ที่คุณได้จาก LINE Notify
+$token = 'MeC4LJKKS60bxjL4S7puGfxEovKpKpENMEZhkL8ZNtp';  // ใส่ Token ที่คุณได้จาก LINE Notify
 
 // ข้อความที่ต้องการส่ง
 $lineMessage = "📩 แบบสอบถามใหม่!\n👤 ชื่อ: $name\n📧 อีเมล: $email\n📝 ข้อความ: $message";
